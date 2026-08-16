@@ -33,7 +33,7 @@ a step — see the "Required?" column.
 | [Claude Code CLI](https://github.com/anthropics/claude-code) (`claude`), installed and logged in | **Yes, for the note/summary step** | Writes the title and summary. **Without it, the script stops right after transcription and hands you the raw transcript only — no `.md` note is created at all.** This is not a cosmetic extra; it's the "organize into a note" half of what this tool does. |
 | [Obsidian](https://obsidian.md) | Recommended | Not a hard dependency — the script just writes `.md` files — but the frontmatter/callout format is meant to be viewed in an Obsidian vault. Point `HANDY_TRANSCRIBE_NOTES_DIR` at a folder inside your vault to get that. |
 | [ffmpeg](https://ffmpeg.org) | **Yes** | Converts input audio/video to the 16kHz mono 16-bit PCM WAV Handy's batch mode requires. `brew install ffmpeg` |
-| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Only for YouTube input | Downloads the audio track from a URL. `brew install yt-dlp` |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Only for YouTube input | Downloads the audio track from a URL. `brew install yt-dlp`. Uses `--cookies-from-browser chrome`, so Chrome needs to be installed and logged in to a Google account (see "Known limitations"). |
 
 **Platform: macOS only.** The script quits and relaunches the Handy app
 around the batch call (see "How it works" below) using `osascript` /
@@ -168,6 +168,13 @@ tags:
   `U+202F`, which some macOS screen-recording tools insert) won't match a
   manually-typed path — use shell globbing (`*.mov`) or tab-completion
   instead of retyping the name.
+- **YouTube downloads can get an HTTP 403** from YouTube's anti-bot checks
+  when yt-dlp requests audio without credentials — this got noticeably
+  stricter around mid-2026. The script works around this with
+  `--cookies-from-browser chrome`, which requires Chrome installed and
+  logged in to a Google account. If you don't use Chrome, edit that flag in
+  `transcribe.sh` to point at your browser (yt-dlp supports `brave`,
+  `firefox`, `safari`, `edge`, and others).
 
 ## License
 

@@ -67,7 +67,11 @@ if [[ "$INPUT" =~ ^https?:// ]]; then
   echo "==> URL detected, downloading audio with yt-dlp..."
   SOURCE_URL="$INPUT"
   SOURCE_TYPE="youtube"
-  yt-dlp -f bestaudio -o "$WORK/source.%(ext)s" "$INPUT"
+  # Downloading without cookies frequently hits HTTP 403 from YouTube's
+  # anti-bot checks (not an account/quota issue). Using cookies from a
+  # logged-in Chrome session avoids it in practice. Requires Chrome to be
+  # installed and logged in to a Google account.
+  yt-dlp --cookies-from-browser chrome -f bestaudio -o "$WORK/source.%(ext)s" "$INPUT"
   SRC=$(ls "$WORK"/source.* | head -1)
 else
   SRC="${INPUT/#\~/$HOME}"
