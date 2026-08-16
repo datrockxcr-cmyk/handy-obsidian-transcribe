@@ -3,29 +3,37 @@
 Turn a YouTube video or a local video file into an Obsidian-ready Markdown
 note: transcript + AI-written title and summary, in one command.
 
-This is a thin glue script. It does not do speech-to-text or note-taking
-itself — it combines two existing tools:
+This is a thin glue script. It does not do speech-to-text, summarization, or
+note-taking itself — it combines **three** existing tools:
 
 - **[Handy](https://github.com/cjpais/Handy)** — a free, open source,
   offline speech-to-text app. This script uses Handy's `--transcribe-file`
   batch-transcription mode to turn audio into text.
+- **[Claude Code](https://github.com/anthropics/claude-code)** (the `claude`
+  CLI) — reads the transcript and writes the note's title and summary
+  bullets. **This is the step that actually turns a transcript into a
+  "note."** Without it, this tool only transcribes — see below.
 - **[Obsidian](https://obsidian.md)** — a Markdown-based note-taking app.
   This script writes notes with YAML frontmatter and Obsidian callout syntax
   (`> [!summary]`, `> [!note]-`) designed to be opened in an Obsidian vault.
 
-This project is **not affiliated with either Handy or Obsidian**. Credit for
-the actual transcription and note-taking experience belongs to those
-projects; go check them out.
+This project is **not affiliated with Handy, Claude Code/Anthropic, or
+Obsidian**. Credit for the actual transcription, summarization, and
+note-taking experience belongs to those projects; go check them out.
 
 ## What it needs to work
 
+**All three of these are required for the full "transcript → organized
+note" workflow.** Missing one doesn't break the script, but it does cut out
+a step — see the "Required?" column.
+
 | Tool | Required? | Why |
 |---|---|---|
-| [Handy](https://github.com/cjpais/Handy) (macOS app) | **Yes** | Does the actual speech-to-text. Must be installed, opened once, and have at least one model downloaded via its own GUI before this script can use it headlessly. |
+| [Handy](https://github.com/cjpais/Handy) (macOS app) | **Yes, always** | Does the actual speech-to-text. Must be installed, opened once, and have at least one model downloaded via its own GUI before this script can use it headlessly. Without it, nothing in this tool works at all. |
+| [Claude Code CLI](https://github.com/anthropics/claude-code) (`claude`), installed and logged in | **Yes, for the note/summary step** | Writes the title and summary. **Without it, the script stops right after transcription and hands you the raw transcript only — no `.md` note is created at all.** This is not a cosmetic extra; it's the "organize into a note" half of what this tool does. |
 | [Obsidian](https://obsidian.md) | Recommended | Not a hard dependency — the script just writes `.md` files — but the frontmatter/callout format is meant to be viewed in an Obsidian vault. Point `HANDY_TRANSCRIBE_NOTES_DIR` at a folder inside your vault to get that. |
 | [ffmpeg](https://ffmpeg.org) | **Yes** | Converts input audio/video to the 16kHz mono 16-bit PCM WAV Handy's batch mode requires. `brew install ffmpeg` |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Only for YouTube input | Downloads the audio track from a URL. `brew install yt-dlp` |
-| [Claude Code CLI](https://github.com/anthropics/claude-code) (`claude`) | Optional | Writes the note's title and summary bullets. Without it, the script stops after transcription and just leaves you the raw transcript — no note is created. |
 
 **Platform: macOS only.** The script quits and relaunches the Handy app
 around the batch call (see "How it works" below) using `osascript` /
@@ -44,6 +52,11 @@ brew install ffmpeg yt-dlp   # yt-dlp only needed for YouTube input
 Make sure Handy is installed (see its [releases page](https://github.com/cjpais/Handy/releases))
 and that you've opened it at least once and downloaded a model from its
 Settings screen — this script cannot download a model for you.
+
+Also make sure the [Claude Code](https://claude.com/claude-code) CLI is
+installed and logged in (`claude` on your `PATH`, run `claude` once to
+confirm it opens). This is what turns the transcript into a title + summary
+note — skip it and you'll only get a transcript, not a note.
 
 ## Usage
 
